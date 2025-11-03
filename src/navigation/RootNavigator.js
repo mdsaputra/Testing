@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/HomeScreenView';
-import DetailScreen from '../screens/DetailScreenView';
+import Booking from '../screens/Booking';
 import Onboarding from '../screens/OnboardingView';
 import Login from '../screens/LoginView';
 
@@ -24,7 +24,11 @@ const RootNavigator = () => (
       component={HomeScreen}
       options={{ headerShown: false }}
     />
-    <Stack.Screen name="Detail" component={DetailScreen} />
+    <Stack.Screen
+      name="Booking"
+      component={Booking}
+      options={{ title: 'Booking Ruang Meeting' }}
+    />
   </Stack.Navigator>
 );
 
