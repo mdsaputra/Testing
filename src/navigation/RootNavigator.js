@@ -44,17 +44,15 @@ const RootNavigator = () => (
       name="JadwalRuangMeeting"
       component={JadwalRuangMeeting}
       options={({ navigation }) => ({
-        title: 'JadwalRuangMeeting Ruang Meeting',
+        title: 'Jadwal Ruang Meeting',
         headerStyle: {
           backgroundColor: '#D9D9D9',
-          height: 100,
         },
         headerTintColor: '#000',
         headerTitleStyle: {
           fontWeight: '100',
         },
         headerTitleContainerStyle: {
-          height: 100,
           justifyContent: 'center',
         },
         headerLeft: () => (
@@ -62,7 +60,7 @@ const RootNavigator = () => (
             onPress={() => navigation.replace('Home')}
             style={{ paddingHorizontal: 15 }}
           >
-            <Text style={{ fontSize: 20, color: '#000' }}>←</Text>
+            <Text style={{ fontSize: 35, color: '#000' }}>←</Text>
           </TouchableOpacity>
         ),
       })}

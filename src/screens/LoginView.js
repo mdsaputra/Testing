@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  SafeAreaView,
   View,
   Text,
   TextInput,
@@ -11,17 +10,19 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import EyeIcon from '../assets/eye.svg';
+import EyeOffIcon from '../assets/eye-off.svg';
 
 export default class Login extends Component {
   state = {
     email: '',
     password: '',
     loading: false,
+    hidePassword: true,
   };
 
   onLogin = async () => {
     const { email, password } = this.state;
-    console.log('LOGIN PRESSED', email, password);
     if (!email || !password) {
       Alert.alert('Error', 'Email dan password harus diisi');
       return;
@@ -35,9 +36,7 @@ export default class Login extends Component {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('STATUS', res.status);
       const data = await res.json().catch(() => ({}));
-      console.log('DATA', data);
 
       if (!res.ok) {
         Alert.alert('Login gagal', data.message || 'Periksa kredensial');
@@ -56,7 +55,8 @@ export default class Login extends Component {
   };
 
   render() {
-    const { email, password, loading } = this.state;
+    const { email, password, loading, hidePassword } = this.state;
+
     return (
       <View style={styles.container}>
         <KeyboardAvoidingView
@@ -68,6 +68,7 @@ export default class Login extends Component {
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Sign In</Text>
 
+            {/* Email Field */}
             <TextInput
               value={email}
               onChangeText={email => this.setState({ email })}
@@ -78,15 +79,29 @@ export default class Login extends Component {
               placeholderTextColor="#bbb"
             />
 
-            <TextInput
-              value={password}
-              onChangeText={password => this.setState({ password })}
-              style={[styles.input, { marginTop: 14 }]}
-              secureTextEntry
-              placeholder="Password..."
-              placeholderTextColor="#bbb"
-            />
+            {/* Password Field dengan Toggle Eye */}
+            <View style={styles.passwordContainer}>
+              <TextInput
+                value={password}
+                onChangeText={password => this.setState({ password })}
+                style={styles.passwordInput}
+                secureTextEntry={hidePassword}
+                placeholder="Password..."
+                placeholderTextColor="#bbb"
+              />
+              <TouchableOpacity
+                onPress={() => this.setState({ hidePassword: !hidePassword })}
+                style={styles.iconContainer}
+              >
+                {hidePassword ? (
+                  <EyeOffIcon width={22} height={22} />
+                ) : (
+                  <EyeIcon width={22} height={22} />
+                )}
+              </TouchableOpacity>
+            </View>
 
+            {/* Button Sign In */}
             <TouchableOpacity
               style={[styles.signButton, loading && { opacity: 0.7 }]}
               activeOpacity={0.8}
@@ -108,10 +123,7 @@ export default class Login extends Component {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  avoider: {
-    flex: 1,
-    alignItems: 'center',
-  },
+  avoider: { flex: 1, alignItems: 'center' },
   titleTop: {
     fontSize: 32,
     fontWeight: '700',
@@ -125,21 +137,16 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     paddingVertical: 28,
     paddingHorizontal: 22,
-    margin: '30%',
+    marginTop: 30,
     alignItems: 'center',
-
-    // shadow
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
   },
-  cardTitle: {
-    fontSize: 24,
-    fontWeight: '400',
-    marginBottom: 60,
-  },
+  cardTitle: { fontSize: 24, fontWeight: '400', marginBottom: 40 },
+
   input: {
     width: '86%',
     height: 52,
@@ -147,10 +154,31 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    borderWidth: 0,
+    marginBottom: 14,
   },
+
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '86%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 52,
+    marginBottom: 14,
+  },
+  passwordInput: {
+    flex: 1,
+    fontSize: 16,
+    height: '100%',
+    color: '#000',
+  },
+  iconContainer: {
+    marginLeft: 8,
+  },
+
   signButton: {
-    marginTop: 22,
+    marginTop: 10,
     backgroundColor: '#fff',
     paddingVertical: 12,
     paddingHorizontal: 40,
@@ -158,9 +186,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  signButtonText: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#000',
-  },
+  signButtonText: { fontSize: 16, fontWeight: '400', color: '#000' },
 });
