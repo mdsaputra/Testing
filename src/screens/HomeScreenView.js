@@ -75,19 +75,23 @@ export default function Home({ navigation }) {
 
       {/* BOTTOM NAV */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.navButton}>
-          <JadwalIcon width={24} height={24} fill="#007C6D" />
-          <Text style={[styles.navLabel, { color: '#007C6D' }]}>
-            Jadwal{'\n'}Ruang Meeting
-          </Text>
+        <TouchableOpacity style={styles.navButtonActive}>
+          <JadwalIcon width={34} height={38} fill="#007C6D" />
+          <View style={{ flexDirection: 'column', marginLeft: 8 }}>
+            <Text style={styles.navLabelActive}>Jadwal</Text>
+            <Text style={styles.navLabelActive}>Ruang Meeting</Text>
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.navButton}
           onPress={() => navigation.navigate('Booking')}
         >
-          <BookingIcon width={24} height={24} fill="#555" />
-          <Text style={styles.navLabel}>Booking{'\n'}Ruang Meeting</Text>
+          <BookingIcon width={34} height={38} fill="#555" />
+          <View style={{ flexDirection: 'column', marginLeft: 8 }}>
+            <Text style={styles.navLabel}>Booking</Text>
+            <Text style={styles.navLabel}>Ruang Meeting</Text>
+          </View>
         </TouchableOpacity>
       </View>
     </View>
@@ -124,10 +128,10 @@ const styles = StyleSheet.create({
   room: { fontSize: 16, color: '#333', fontWeight: '600' },
   bottomBar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: '#f9f9f9',
-    paddingVertical: 12,
+    paddingVertical: 24,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
     position: 'absolute',
@@ -135,6 +139,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  navButton: { alignItems: 'center' },
-  navLabel: { textAlign: 'center', fontSize: 12, color: '#555', marginTop: 4 },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  navButtonActive: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  navLabel: {
+    fontSize: 13,
+    color: '#555',
+    fontWeight: '500',
+  },
+  navLabelActive: {
+    fontSize: 13,
+    color: '#007C6D',
+    fontWeight: '600',
+  },
 });
