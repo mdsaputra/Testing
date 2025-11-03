@@ -68,7 +68,10 @@ export default function Home({ navigation }) {
             style: 'destructive',
             onPress: async () => {
               await AsyncStorage.removeItem('token');
-              navigation.replace('Login');
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              });
             },
           },
         ]);
@@ -94,7 +97,10 @@ export default function Home({ navigation }) {
         style: 'destructive',
         onPress: async () => {
           await AsyncStorage.removeItem('token');
-          navigation.replace('Login');
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
         },
       },
     ]);
