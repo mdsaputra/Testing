@@ -28,12 +28,30 @@ const RootNavigator = () => (
     <Stack.Screen
       name="Booking"
       component={Booking}
-      options={{ title: 'Booking Ruang Meeting' }}
+      options={{
+        title: 'Booking Ruang Meeting',
+        headerStyle: {
+          backgroundColor: '#D9D9D9',
+        },
+        headerTintColor: '#000',
+        headerTitleStyle: {
+          fontWeight: '100',
+        },
+      }}
     />
     <Stack.Screen
       name="JadwalRuangMeeting"
       component={JadwalRuangMeeting}
-      options={{ title: 'Jadwal Ruang Meeting' }}
+      options={{
+        title: 'JadwalRuangMeeting Ruang Meeting',
+        headerStyle: {
+          backgroundColor: '#D9D9D9',
+        },
+        headerTintColor: '#000',
+        headerTitleStyle: {
+          fontWeight: '100',
+        },
+      }}
     />
   </Stack.Navigator>
 );

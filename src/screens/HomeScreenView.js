@@ -67,7 +67,7 @@ export default function Home({ navigation }) {
             text: 'Logout',
             style: 'destructive',
             onPress: async () => {
-              await AsyncStorage.clear();
+              await AsyncStorage.removeItem('token');
               navigation.replace('Login');
             },
           },
@@ -93,7 +93,7 @@ export default function Home({ navigation }) {
         text: 'Logout',
         style: 'destructive',
         onPress: async () => {
-          await AsyncStorage.clear();
+          await AsyncStorage.removeItem('token');
           navigation.replace('Login');
         },
       },
@@ -224,14 +224,14 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: '#ccc',
+    backgroundColor: '#BEC3E6',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
   },
   avatarText: { fontSize: 32, color: '#fff', fontWeight: '600' },
   name: { fontSize: 20, fontWeight: '600', color: '#000' },
-  role: { fontSize: 14, color: '#555' },
+  role: { fontSize: 10, color: '#555' },
   logoutTextWrapper: {
     position: 'absolute',
     right: 0,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
   card: {
     backgroundColor: '#ddd',
-    borderRadius: 10,
+    borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 20,
     marginBottom: 10,
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   time: { fontSize: 16, color: '#888', fontWeight: '500' },
-  room: { fontSize: 16, color: '#333', fontWeight: '600' },
+  room: { fontSize: 16, color: '#888', fontWeight: '600' },
   bottomBar: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
