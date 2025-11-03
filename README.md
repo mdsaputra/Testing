@@ -6,6 +6,9 @@ Kekurangan
 Coding style belum menggunakan MVVM, next struktur bakalan lebih clean.
 styling masih belum sama persis dengan figma
 
+Evidance:
+https://1drv.ms/w/c/904247cab2424ea1/EbCWbRkAUR9ImyZ_LEjKS_MBoPzJyKRn_aAoI0KuU4Z_Nw?e=ARgUaU
+
 "dependencies": {
 "@react-native-async-storage/async-storage": "^2.2.0",
 "@react-native-community/datetimepicker": "^8.5.0",

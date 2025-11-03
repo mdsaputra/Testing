@@ -19,7 +19,6 @@ const JadwalRuangMeeting = ({ navigation }) => {
   const [tanggal, setTanggal] = useState('');
   const [showDate, setShowDate] = useState(false);
 
-  // Load bookings dari AsyncStorage
   useEffect(() => {
     const loadData = async () => {
       const data = await AsyncStorage.getItem('bookings');
@@ -28,7 +27,6 @@ const JadwalRuangMeeting = ({ navigation }) => {
     loadData();
   }, []);
 
-  // Filter bookings berdasarkan ruang dan tanggal
   useEffect(() => {
     const f = bookings.filter(
       item =>
@@ -38,11 +36,10 @@ const JadwalRuangMeeting = ({ navigation }) => {
     setFiltered(f);
   }, [ruang, tanggal, bookings]);
 
-  // Hardware back → ke Home
   useEffect(() => {
     const backAction = () => {
       navigation.replace('Home');
-      return true; // cegah default
+      return true;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -53,10 +50,9 @@ const JadwalRuangMeeting = ({ navigation }) => {
     return () => backHandler.remove();
   }, [navigation]);
 
-  // Header panah default, hilangkan teks
   useEffect(() => {
     navigation.setOptions({
-      headerBackTitleVisible: false, // hilangkan teks "Back"
+      headerBackTitleVisible: false,
     });
   }, [navigation]);
 

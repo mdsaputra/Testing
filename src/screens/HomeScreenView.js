@@ -57,7 +57,6 @@ export default function Home({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  // BackHandler hanya untuk Home screen
   useEffect(() => {
     const backAction = () => {
       if (navigation.isFocused()) {
@@ -75,9 +74,9 @@ export default function Home({ navigation }) {
             },
           },
         ]);
-        return true; // cegah back default
+        return true;
       }
-      return false; // biarkan back normal
+      return false;
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -106,7 +105,6 @@ export default function Home({ navigation }) {
     ]);
   };
 
-  // Hapus semua booking lokal
   const handleDeleteAll = () => {
     Alert.alert(
       'Hapus Semua',
@@ -144,12 +142,10 @@ export default function Home({ navigation }) {
     );
   }
 
-  // Filter jadwal yang valid (bukan "-")
   const filteredJadwal = jadwal.filter(j => j.waktu !== '-' && j.ruang !== '-');
 
   return (
     <View style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>Y</Text>
@@ -159,7 +155,6 @@ export default function Home({ navigation }) {
           <Text style={styles.role}>Web Developer</Text>
         </View>
 
-        {/* Logout wording */}
         <TouchableOpacity
           onPress={handleLogout}
           style={styles.logoutTextWrapper}
@@ -168,10 +163,8 @@ export default function Home({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* JUDUL */}
       <Text style={styles.title}>Jadwal Ruang Meeting Hari Ini</Text>
 
-      {/* LIST JADWAL */}
       {filteredJadwal.length === 0 ? (
         <Text style={{ color: '#777', textAlign: 'center', marginTop: 20 }}>
           Belum ada jadwal meeting hari ini
@@ -190,14 +183,12 @@ export default function Home({ navigation }) {
         />
       )}
 
-      {/* HAPUS SEMUA */}
       {localBookings.length > 0 && (
         <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAll}>
           <Text style={styles.deleteText}>Hapus Semua</Text>
         </TouchableOpacity>
       )}
 
-      {/* BOTTOM NAV */}
       <View style={styles.bottomBar}>
         <TouchableOpacity style={styles.navButtonActive}>
           <JadwalIcon width={34} height={38} fill="#007C6D" />
