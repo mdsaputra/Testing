@@ -14,9 +14,11 @@ import JadwalIcon from '../assets/jadwal.svg';
 import BookingIcon from '../assets/booking.svg';
 
 export default function Home({ navigation }) {
-  const [jadwal, setJadwal] = useState([]);
+  const [jadwal, setJadwal] = useState([]); // gabungan API + local
+  const [localBookings, setLocalBookings] = useState([]); // booking lokal
   const [loading, setLoading] = useState(true);
 
+  // Fetch jadwal dan booking lokal
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
@@ -28,6 +30,7 @@ export default function Home({ navigation }) {
 
         const localDataRaw = await AsyncStorage.getItem('bookings');
         const localData = localDataRaw ? JSON.parse(localDataRaw) : [];
+        setLocalBookings(localData); // simpan booking lokal
 
         const merged = [
           ...apiData.map(item => ({
@@ -54,10 +57,9 @@ export default function Home({ navigation }) {
     return unsubscribe;
   }, [navigation]);
 
-  // BackHandler untuk konfirmasi logout
+  // BackHandler hanya untuk Home screen
   useEffect(() => {
     const backAction = () => {
-      // hanya jalankan jika screen Home sedang fokus
       if (navigation.isFocused()) {
         Alert.alert('Logout', 'Apakah yakin ingin logout?', [
           { text: 'Batal', style: 'cancel' },
@@ -72,7 +74,7 @@ export default function Home({ navigation }) {
         ]);
         return true; // cegah back default
       }
-      return false; // biarkan back normal di screen lain
+      return false; // biarkan back normal
     };
 
     const backHandler = BackHandler.addEventListener(
@@ -80,10 +82,11 @@ export default function Home({ navigation }) {
       backAction,
     );
 
-    return () => backHandler.remove(); // cleanup listener
+    return () => backHandler.remove();
   }, [navigation]);
 
-  const handleLogout = async () => {
+  // Logout handler
+  const handleLogout = () => {
     Alert.alert('Logout', 'Apakah yakin ingin logout?', [
       { text: 'Batal', style: 'cancel' },
       {
@@ -97,7 +100,8 @@ export default function Home({ navigation }) {
     ]);
   };
 
-  const handleDeleteAll = async () => {
+  // Hapus semua booking lokal
+  const handleDeleteAll = () => {
     Alert.alert(
       'Hapus Semua',
       'Apakah Anda yakin ingin menghapus semua booking lokal?',
@@ -108,8 +112,17 @@ export default function Home({ navigation }) {
           style: 'destructive',
           onPress: async () => {
             await AsyncStorage.removeItem('bookings');
+            setLocalBookings([]);
+            // hapus dari jadwal gabungan
             setJadwal(prev =>
-              prev.filter(j => !j.ruang.startsWith('Ruang Booking')),
+              prev.filter(
+                j =>
+                  !localBookings.some(
+                    l =>
+                      l.ruang === j.ruang &&
+                      `${l.mulai} - ${l.selesai}` === j.waktu,
+                  ),
+              ),
             );
           },
         },
@@ -125,6 +138,9 @@ export default function Home({ navigation }) {
     );
   }
 
+  // Filter jadwal yang valid (bukan "-")
+  const filteredJadwal = jadwal.filter(j => j.waktu !== '-' && j.ruang !== '-');
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -137,7 +153,7 @@ export default function Home({ navigation }) {
           <Text style={styles.role}>Web Developer</Text>
         </View>
 
-        {/* Logout wording di kanan atas */}
+        {/* Logout wording */}
         <TouchableOpacity
           onPress={handleLogout}
           style={styles.logoutTextWrapper}
@@ -150,13 +166,13 @@ export default function Home({ navigation }) {
       <Text style={styles.title}>Jadwal Ruang Meeting Hari Ini</Text>
 
       {/* LIST JADWAL */}
-      {jadwal.length === 0 ? (
+      {filteredJadwal.length === 0 ? (
         <Text style={{ color: '#777', textAlign: 'center', marginTop: 20 }}>
           Belum ada jadwal meeting hari ini
         </Text>
       ) : (
         <FlatList
-          data={jadwal}
+          data={filteredJadwal}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.card}>
@@ -169,7 +185,7 @@ export default function Home({ navigation }) {
       )}
 
       {/* HAPUS SEMUA */}
-      {jadwal.length > 0 && (
+      {localBookings.length > 0 && (
         <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAll}>
           <Text style={styles.deleteText}>Hapus Semua</Text>
         </TouchableOpacity>

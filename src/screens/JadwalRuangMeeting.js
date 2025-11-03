@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  BackHandler,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
@@ -18,6 +19,7 @@ const JadwalRuangMeeting = ({ navigation }) => {
   const [tanggal, setTanggal] = useState('');
   const [showDate, setShowDate] = useState(false);
 
+  // Load data
   useEffect(() => {
     const loadData = async () => {
       const data = await AsyncStorage.getItem('bookings');
@@ -26,18 +28,42 @@ const JadwalRuangMeeting = ({ navigation }) => {
     loadData();
   }, []);
 
+  // Filter bookings
   useEffect(() => {
-    if (ruang || tanggal) {
-      const f = bookings.filter(
-        item =>
-          (!ruang || item.ruang === ruang) &&
-          (!tanggal || item.tanggal === tanggal),
-      );
-      setFiltered(f);
-    } else {
-      setFiltered(bookings);
-    }
+    const f = bookings.filter(
+      item =>
+        (!ruang || item.ruang === ruang) &&
+        (!tanggal || item.tanggal === tanggal),
+    );
+    setFiltered(f);
   }, [ruang, tanggal, bookings]);
+
+  // Hardware back ke Home
+  useEffect(() => {
+    const backAction = () => {
+      navigation.replace('Home');
+      return true;
+    };
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+    return () => backHandler.remove();
+  }, [navigation]);
+
+  // Override header back button
+  useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity
+          onPress={() => navigation.replace('Home')}
+          style={{ marginLeft: 15 }}
+        >
+          <Text style={{ color: '#007C6D', fontWeight: '600' }}>Kembali</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === 'dismissed') {
