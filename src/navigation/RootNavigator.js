@@ -4,6 +4,7 @@ import HomeScreen from '../screens/HomeScreenView';
 import Booking from '../screens/Booking';
 import Onboarding from '../screens/OnboardingView';
 import Login from '../screens/LoginView';
+import JadwalRuangMeeting from '../screens/JadwalRuangMeeting';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,6 +29,11 @@ const RootNavigator = () => (
       name="Booking"
       component={Booking}
       options={{ title: 'Booking Ruang Meeting' }}
+    />
+    <Stack.Screen
+      name="JadwalRuangMeeting"
+      component={JadwalRuangMeeting}
+      options={{ title: 'Jadwal Ruang Meeting' }}
     />
   </Stack.Navigator>
 );

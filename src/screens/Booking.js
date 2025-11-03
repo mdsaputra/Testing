@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import InputField from '../components/InputField';
@@ -17,16 +24,29 @@ const BookingView = ({ navigation }) => {
     peserta: '',
   });
 
-  const [showDate, setShowDate] = useState(false);
+  const [pickerMode, setPickerMode] = useState(null); // 'date' | 'mulai' | 'selesai'
+  const [tempDate, setTempDate] = useState(new Date());
 
   const onChange = (key, value) => setForm({ ...form, [key]: value });
 
-  const handleDateChange = (event, selectedDate) => {
-    setShowDate(false);
-    if (selectedDate) {
-      const formatted = selectedDate.toISOString().split('T')[0]; // yyyy-mm-dd
-      onChange('tanggal', formatted);
+  // Handler date/time change
+  const handlePickerChange = (event, selected) => {
+    if (event.type === 'dismissed') {
+      setPickerMode(null);
+      return;
     }
+    const selectedDate = selected || tempDate;
+
+    if (pickerMode === 'date') {
+      const formatted = selectedDate.toISOString().split('T')[0];
+      onChange('tanggal', formatted);
+    } else if (pickerMode === 'mulai' || pickerMode === 'selesai') {
+      const h = selectedDate.getHours().toString().padStart(2, '0');
+      const m = selectedDate.getMinutes().toString().padStart(2, '0');
+      onChange(pickerMode, `${h}:${m}`);
+    }
+
+    setPickerMode(null);
   };
 
   const handleSubmit = async () => {
@@ -98,8 +118,8 @@ const BookingView = ({ navigation }) => {
           </Picker>
         </View>
 
-        {/* Date Picker Field */}
-        <TouchableOpacity onPress={() => setShowDate(true)}>
+        {/* Tanggal Meeting */}
+        <TouchableOpacity onPress={() => setPickerMode('date')}>
           <InputField
             placeholder="Tanggal Meeting"
             value={form.tanggal}
@@ -108,33 +128,43 @@ const BookingView = ({ navigation }) => {
           />
         </TouchableOpacity>
 
-        {showDate && (
-          <DateTimePicker
-            value={form.tanggal ? new Date(form.tanggal) : new Date()}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
+        {/* Waktu Mulai */}
+        <TouchableOpacity onPress={() => setPickerMode('mulai')}>
+          <InputField
+            placeholder="Waktu Mulai Meeting"
+            value={form.mulai}
+            editable={false}
+            icon={<ClockIcon width={20} height={20} />}
           />
-        )}
+        </TouchableOpacity>
 
-        <InputField
-          placeholder="Waktu Mulai Meeting"
-          value={form.mulai}
-          onChangeText={v => onChange('mulai', v)}
-          icon={<ClockIcon width={20} height={20} />}
-        />
-        <InputField
-          placeholder="Waktu Selesai Meeting"
-          value={form.selesai}
-          onChangeText={v => onChange('selesai', v)}
-          icon={<ClockIcon width={20} height={20} />}
-        />
+        {/* Waktu Selesai */}
+        <TouchableOpacity onPress={() => setPickerMode('selesai')}>
+          <InputField
+            placeholder="Waktu Selesai Meeting"
+            value={form.selesai}
+            editable={false}
+            icon={<ClockIcon width={20} height={20} />}
+          />
+        </TouchableOpacity>
+
+        {/* Jumlah Peserta */}
         <InputField
           placeholder="Jumlah Peserta"
           value={form.peserta}
           onChangeText={v => onChange('peserta', v)}
         />
       </ScrollView>
+
+      {/* Picker Global — Tidak Kondisional */}
+      {pickerMode && (
+        <DateTimePicker
+          value={new Date()}
+          mode={pickerMode === 'date' ? 'date' : 'time'}
+          display="default"
+          onChange={handlePickerChange}
+        />
+      )}
 
       {/* Tombol Submit */}
       <View
