@@ -50,6 +50,13 @@ const BookingView = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
+    // Validasi field kosong
+    const { divisi, ruang, tanggal, mulai, selesai, peserta } = form;
+    if (!divisi || !ruang || !tanggal || !mulai || !selesai || !peserta) {
+      Alert.alert('Validasi Gagal', 'Semua field harus diisi sebelum submit.');
+      return;
+    }
+
     try {
       const existing = await AsyncStorage.getItem('bookings');
       const data = existing ? JSON.parse(existing) : [];

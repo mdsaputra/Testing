@@ -7,8 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-
-// import icon SVG
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import JadwalIcon from '../assets/jadwal.svg';
 import BookingIcon from '../assets/booking.svg';
 
@@ -19,20 +18,43 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
+        // 🔹 Ambil dari API
         const res = await fetch(
           'https://uat-api.ftlgym.com/api/v1/test/jadwalruangan',
         );
         const data = await res.json();
-        console.log('DATA JADWAL:', data);
-        setJadwal(data.data || data);
+        const apiData = data.data || data;
+
+        // 🔹 Ambil dari AsyncStorage
+        const localDataRaw = await AsyncStorage.getItem('bookings');
+        const localData = localDataRaw ? JSON.parse(localDataRaw) : [];
+
+        // 🔹 Gabungkan (API + lokal)
+        const merged = [
+          ...apiData.map(item => ({
+            waktu:
+              item.waktu ||
+              `${item.jamMulai || '-'} - ${item.jamSelesai || '-'}`,
+            ruang: item.ruangan || item.namaRuangan || '-',
+          })),
+          ...localData.map(item => ({
+            waktu: `${item.mulai} - ${item.selesai}`,
+            ruang: item.ruang,
+          })),
+        ];
+
+        setJadwal(merged);
       } catch (error) {
         console.warn('Fetch jadwal error:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchJadwal();
-  }, []);
+
+    // Panggil saat pertama dan setiap screen difokuskan
+    const unsubscribe = navigation.addListener('focus', fetchJadwal);
+    return unsubscribe;
+  }, [navigation]);
 
   if (loading) {
     return (
@@ -59,19 +81,22 @@ export default function Home({ navigation }) {
       <Text style={styles.title}>Jadwal Ruang Meeting Hari Ini</Text>
 
       {/* LIST JADWAL */}
-      <FlatList
-        data={jadwal}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.time}>
-              {item.waktu ||
-                `${item.jamMulai || ''} - ${item.jamSelesai || ''}`}
-            </Text>
-            <Text style={styles.room}>{item.ruangan || item.namaRuangan}</Text>
-          </View>
-        )}
-      />
+      {jadwal.length === 0 ? (
+        <Text style={{ color: '#777', textAlign: 'center', marginTop: 20 }}>
+          Belum ada jadwal meeting hari ini
+        </Text>
+      ) : (
+        <FlatList
+          data={jadwal}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.time}>{item.waktu}</Text>
+              <Text style={styles.room}>{item.ruang}</Text>
+            </View>
+          )}
+        />
+      )}
 
       {/* BOTTOM NAV */}
       <View style={styles.bottomBar}>
