@@ -6,6 +6,8 @@ import {
   ActivityIndicator,
   FlatList,
   TouchableOpacity,
+  Alert,
+  BackHandler,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import JadwalIcon from '../assets/jadwal.svg';
@@ -18,18 +20,15 @@ export default function Home({ navigation }) {
   useEffect(() => {
     const fetchJadwal = async () => {
       try {
-        // 🔹 Ambil dari API
         const res = await fetch(
           'https://uat-api.ftlgym.com/api/v1/test/jadwalruangan',
         );
         const data = await res.json();
         const apiData = data.data || data;
 
-        // 🔹 Ambil dari AsyncStorage
         const localDataRaw = await AsyncStorage.getItem('bookings');
         const localData = localDataRaw ? JSON.parse(localDataRaw) : [];
 
-        // 🔹 Gabungkan (API + lokal)
         const merged = [
           ...apiData.map(item => ({
             waktu:
@@ -51,10 +50,72 @@ export default function Home({ navigation }) {
       }
     };
 
-    // Panggil saat pertama dan setiap screen difokuskan
     const unsubscribe = navigation.addListener('focus', fetchJadwal);
     return unsubscribe;
   }, [navigation]);
+
+  // BackHandler untuk konfirmasi logout
+  useEffect(() => {
+    const backAction = () => {
+      // hanya jalankan jika screen Home sedang fokus
+      if (navigation.isFocused()) {
+        Alert.alert('Logout', 'Apakah yakin ingin logout?', [
+          { text: 'Batal', style: 'cancel' },
+          {
+            text: 'Logout',
+            style: 'destructive',
+            onPress: async () => {
+              await AsyncStorage.clear();
+              navigation.replace('Login');
+            },
+          },
+        ]);
+        return true; // cegah back default
+      }
+      return false; // biarkan back normal di screen lain
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove(); // cleanup listener
+  }, [navigation]);
+
+  const handleLogout = async () => {
+    Alert.alert('Logout', 'Apakah yakin ingin logout?', [
+      { text: 'Batal', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await AsyncStorage.clear();
+          navigation.replace('Login');
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteAll = async () => {
+    Alert.alert(
+      'Hapus Semua',
+      'Apakah Anda yakin ingin menghapus semua booking lokal?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            await AsyncStorage.removeItem('bookings');
+            setJadwal(prev =>
+              prev.filter(j => !j.ruang.startsWith('Ruang Booking')),
+            );
+          },
+        },
+      ],
+    );
+  };
 
   if (loading) {
     return (
@@ -71,10 +132,18 @@ export default function Home({ navigation }) {
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>Y</Text>
         </View>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.name}>Yosi</Text>
           <Text style={styles.role}>Web Developer</Text>
         </View>
+
+        {/* Logout wording di kanan atas */}
+        <TouchableOpacity
+          onPress={handleLogout}
+          style={styles.logoutTextWrapper}
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
       {/* JUDUL */}
@@ -95,7 +164,15 @@ export default function Home({ navigation }) {
               <Text style={styles.room}>{item.ruang}</Text>
             </View>
           )}
+          contentContainerStyle={{ paddingBottom: 160 }}
         />
+      )}
+
+      {/* HAPUS SEMUA */}
+      {jadwal.length > 0 && (
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteAll}>
+          <Text style={styles.deleteText}>Hapus Semua</Text>
+        </TouchableOpacity>
       )}
 
       {/* BOTTOM NAV */}
@@ -126,7 +203,7 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff', padding: 20 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 30 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   avatar: {
     width: 70,
     height: 70,
@@ -139,6 +216,14 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 32, color: '#fff', fontWeight: '600' },
   name: { fontSize: 20, fontWeight: '600', color: '#000' },
   role: { fontSize: 14, color: '#555' },
+  logoutTextWrapper: {
+    position: 'absolute',
+    right: 0,
+    top: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  logoutText: { color: '#007C6D', fontWeight: '600', fontSize: 14 },
   title: { fontSize: 16, fontWeight: '600', marginBottom: 10 },
   card: {
     backgroundColor: '#ddd',
@@ -155,7 +240,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    backgroundColor: '#D9D9D982',
+    backgroundColor: '#fff',
     paddingVertical: 24,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
@@ -164,24 +249,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  navButton: {
-    flexDirection: 'row',
+  navButton: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  navButtonActive: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  navLabel: { fontSize: 13, color: '#555', fontWeight: '500' },
+  navLabelActive: { fontSize: 13, color: '#007C6D', fontWeight: '600' },
+  deleteButton: {
+    backgroundColor: '#ff4d4d',
+    paddingVertical: 12,
+    borderRadius: 10,
     alignItems: 'center',
-    gap: 8,
+    marginBottom: 10,
+    marginHorizontal: 20,
   },
-  navButtonActive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  navLabel: {
-    fontSize: 13,
-    color: '#555',
-    fontWeight: '500',
-  },
-  navLabelActive: {
-    fontSize: 13,
-    color: '#007C6D',
-    fontWeight: '600',
-  },
+  deleteText: { color: '#fff', fontWeight: '600', fontSize: 14 },
 });

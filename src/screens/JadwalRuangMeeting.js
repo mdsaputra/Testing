@@ -71,11 +71,7 @@ const JadwalRuangMeeting = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F3F3F3', padding: 20 }}>
-      {/* Header otomatis sudah diatur dari Stack.Navigator */}
-
-      {/* Filter */}
       <ScrollView>
-        {/* Dropdown Ruang */}
         <View
           style={{
             backgroundColor: '#f9f7f7',
@@ -99,7 +95,6 @@ const JadwalRuangMeeting = ({ navigation }) => {
           </Picker>
         </View>
 
-        {/* Tanggal Meeting */}
         <TouchableOpacity
           onPress={() => setShowDate(true)}
           style={{
@@ -129,7 +124,6 @@ const JadwalRuangMeeting = ({ navigation }) => {
           />
         )}
 
-        {/* List Booking */}
         <View style={{ marginTop: 20 }}>
           <FlatList
             data={filtered}
